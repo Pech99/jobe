@@ -20,7 +20,9 @@ class GO_Task extends Task {
     }
 
     public static function getVersionCommand() {
-        return array('go version', '/go \(.*\) ([0-9.]*)/');
+        //return array('go version', '/go \(.*\) ([0-9.]*)/');
+        return array('go version', '');
+
     }
 
     //TODO
