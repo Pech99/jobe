@@ -20,16 +20,19 @@ class GO_Task extends Task {
     }
 
     public static function getVersionCommand() {
-        return array('go version', '/go([0-9.]*)/');
+        return array('go version', '/([0-9.]+)/');
     }
 
     //TODO
+    // Compile the current source file in the current directory, saving
+    // the compiled output in a file $this->executableFileName.
+    // Sets $this->cmpinfo accordingly.
     public function compile() {
         $src = basename($this->sourceFileName);
         $this->executableFileName = $execFileName = "$src.exe";
         $compileargs = $this->getParam('compileargs');
         $linkargs = $this->getParam('linkargs');
-        $cmd = "go build" . implode(' ', $compileargs) . " -o $execFileName $src " . implode(' ', $linkargs);
+        $cmd = "go build" . " -o $execFileName $src " . implode(' ', $linkargs);
         list($output, $this->cmpinfo) = $this->run_in_sandbox($cmd);
     }
 
