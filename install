@@ -210,6 +210,10 @@ def process_command_line_args():
     args = parser.parse_args(sys.argv[1:])
     return args
 
+def golang():
+    do_command("sudo rm -r /go_temp")
+    do_command("sudo mkdir /go_temp")
+    do_command("sudo chmod -R 7777 /go_temp")
 
 def main():
     """Every home should have one."""
@@ -255,6 +259,9 @@ def main():
             os.remove(LANGUAGE_CACHE_FILE)
         except:
             pass
+
+        golang()
+        print("Golang temp dir installed in /go_temp")
 
         print("Jobe installation complete")
 
