@@ -325,7 +325,7 @@ abstract class Task {
         else {
             $sandboxCmd .= " </dev/null\n";
         }
-        //$test = fopen('/go_temp/test.out', 'w'); fwrite($test, $sandboxCmd); fclose($test);
+
         file_put_contents('prog.cmd', $sandboxCmd);
         exec('bash prog.cmd');
 

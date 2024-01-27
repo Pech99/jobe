@@ -19,7 +19,6 @@ class GO_Task extends Task {
 
     public function __construct($filename, $input, $params) {
         parent::__construct($filename, $input, $params);
-        //$this->default_params['compileargs'] = array('-Wall');
     }
 
     public static function getVersionCommand() {
@@ -37,10 +36,19 @@ class GO_Task extends Task {
     public function compile() {
         $src = basename($this->sourceFileName);
         $this->executableFileName = $execFileName = "$src.exe";
-        $compileargs = $this->getParam('compileargs');
-        $linkargs = $this->getParam('linkargs');
-        $cmd = "env -i GOCACHE=/go_temp  go build -o $execFileName" . " $src ";
+        # $compileargs = $this->getParam('compileargs');
+        # $linkargs = $this->getParam('linkargs');
+        # in accordo con le modifiche al file classes\localsandbox.php
+        # $cmd = "go mod init esercizio.com/es\nenv -i GOCACHE=/go_temp  go build -o $execFileName" . " src.go ";
+
+        $this->run_in_sandbox("mv ".$src." ./surces.go");
+        $this->run_in_sandbox("go mod init esercizio.com/es");
+        $cmd = "env -i GOCACHE=/go_temp  go build -o $execFileName";
         list($output, $this->cmpinfo) = $this->run_in_sandbox($cmd);
+
+        //$test = fopen('/go_temp/test.out', 'w'); fwrite($test, $cmd."\n\n".$this->cmpinfo."\n\n".$output); fclose($test);
+        //sleep(200);
+
     }
 
     // A default name for GO programs

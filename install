@@ -211,7 +211,11 @@ def process_command_line_args():
     return args
 
 def golang():
-    do_command("sudo rm -r /go_temp")
+    try:
+        do_command("sudo rm -r /go_temp")
+    except:
+        pass
+    
     do_command("sudo mkdir /go_temp")
     do_command("sudo chmod -R 7777 /go_temp")
 
