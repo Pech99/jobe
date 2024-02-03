@@ -41,7 +41,7 @@ class GO_Task extends Task {
         # in accordo con le modifiche al file classes\localsandbox.php
         # $cmd = "go mod init esercizio.com/es\nenv -i GOCACHE=/go_temp  go build -o $execFileName" . " src.go ";
 
-        $this->run_in_sandbox("mv ".$src." ./surces.go");
+        $this->run_in_sandbox("mv ".$src." ./sources.go");
         $this->run_in_sandbox("go mod init esercizio.com/es");
         $cmd = "env -i GOCACHE=/go_temp  go build -o $execFileName";
         list($output, $this->cmpinfo) = $this->run_in_sandbox($cmd);

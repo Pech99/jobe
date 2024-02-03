@@ -41,7 +41,7 @@ abstract class Task {
         'streamsize'    => 2,       // MB (for stdout/stderr)
         'cputime'       => 5,       // secs
         'memorylimit'   => 400,     // MB
-        'numprocs'      => 100,
+        'numprocs'      => 30,
         'compileargs'   => array(),
         'linkargs'      => array(),
         'interpreterargs' => array(),
@@ -278,13 +278,22 @@ abstract class Task {
     public function run_in_sandbox($wrappedCmd, $iscompile=true, $stdin=null) {
         global $CI;
 
-        $filesize = 5000 * $this->getParam('disklimit', $iscompile); // MB -> kB
-        $streamsize = 5000 * $this->getParam('streamsize', $iscompile); // MB -> kB
-        $memsize = 5000 * $this->getParam('memorylimit', $iscompile);
+        $filesize = 1000 * $this->getParam('disklimit', $iscompile); // MB -> kB
+        $streamsize = 1000 * $this->getParam('streamsize', $iscompile); // MB -> kB
+        $memsize = 1000 * $this->getParam('memorylimit', $iscompile);
         $cputime = $this->getParam('cputime', $iscompile);
-        $killtime = 50 * $cputime; // Kill the job after twice the allowed cpu time
+        $killtime = 2 * $cputime; // Kill the job after twice the allowed cpu time
         $numProcs = $this->getParam('numprocs', $iscompile) + 1; // The + 1 allows for the sh command below.
-        
+
+        if ( str_contains($wrappedCmd, "go build") || str_contains($wrappedCmd, "__tester__.go.exe") || str_contains($wrappedCmd, "go mod init")){
+            //$filesize = 5000 * $this->getParam('disklimit', $iscompile);
+            //$streamsize = 5000 * $this->getParam('streamsize', $iscompile);
+            $memsize = 5000 * $this->getParam('memorylimit', $iscompile);
+            $killtime = 50 * $cputime;
+            $numProcs = 101;
+            //sleep(60);
+        }
+
         // CPU pinning - only active if enabled 
         $sandboxCpuPinning = array();
         if($CI->config->item('cpu_pinning_enabled') == TRUE) {
