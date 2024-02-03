@@ -294,13 +294,13 @@ abstract class Task {
             //sleep(60);
         }
 
-        // CPU pinning - only active if enabled 
+        // CPU pinning - only active if enabled
         $sandboxCpuPinning = array();
         if($CI->config->item('cpu_pinning_enabled') == TRUE) {
             $taskset_core_id = intval($this->userId) % intval($CI->config->item('cpu_pinning_num_cores'));
             $sandboxCpuPinning = array("taskset --cpu-list " . $taskset_core_id);
         }
-        
+
         $sandboxCommandBits = array(
             "sudo " . dirname(__FILE__)  . "/../../runguard/runguard",
             "--user={$this->user}",
@@ -311,20 +311,20 @@ abstract class Task {
             "--nproc=$numProcs",       // Max num processes/threads for this *user*
             "--no-core",
             "--streamsize=$streamsize");   // Max stdout/stderr sizes
-            
+
         // Prepend CPU pinning command if enabled
         $sandboxCommandBits = array_merge($sandboxCpuPinning, $sandboxCommandBits);
-        
+
         if ($memsize != 0) {  // Special case: Matlab won't run with a memsize set. TODO: WHY NOT!
             $sandboxCommandBits[] = "--memsize=$memsize";
         }
         $sandboxCmd = implode(' ', $sandboxCommandBits) .
         ' sh -c ' . escapeshellarg($wrappedCmd) . ' >prog.out 2>prog.err';
-        
+
         // CD into the work directory and run the job
         $workdir = $this->workdir;
         chdir($workdir);
-        
+
         if ($stdin) {
             $f = fopen('prog.in', 'w');
             fwrite($f, $stdin);
