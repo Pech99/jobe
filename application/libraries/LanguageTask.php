@@ -276,50 +276,28 @@ abstract class Task {
      * from running the given command.
      */
     public function run_in_sandbox($wrappedCmd, $iscompile=true, $stdin=null) {
-        global $CI;
-
         $filesize = 1000 * $this->getParam('disklimit', $iscompile); // MB -> kB
         $streamsize = 1000 * $this->getParam('streamsize', $iscompile); // MB -> kB
         $memsize = 1000 * $this->getParam('memorylimit', $iscompile);
         $cputime = $this->getParam('cputime', $iscompile);
         $killtime = 2 * $cputime; // Kill the job after twice the allowed cpu time
         $numProcs = $this->getParam('numprocs', $iscompile) + 1; // The + 1 allows for the sh command below.
-
-        if ( str_contains($wrappedCmd, "go build") || str_contains($wrappedCmd, "__tester__.go.exe") || str_contains($wrappedCmd, "go mod init")){
-            //$filesize = 5000 * $this->getParam('disklimit', $iscompile);
-            //$streamsize = 5000 * $this->getParam('streamsize', $iscompile);
-            $memsize = 5000 * $this->getParam('memorylimit', $iscompile);
-            $killtime = 50 * $cputime;
-            $numProcs = 101;
-            //sleep(60);
-        }
-
-        // CPU pinning - only active if enabled
-        $sandboxCpuPinning = array();
-        if($CI->config->item('cpu_pinning_enabled') == TRUE) {
-            $taskset_core_id = intval($this->userId) % intval($CI->config->item('cpu_pinning_num_cores'));
-            $sandboxCpuPinning = array("taskset --cpu-list " . $taskset_core_id);
-        }
-
         $sandboxCommandBits = array(
-            "sudo " . dirname(__FILE__)  . "/../../runguard/runguard",
-            "--user={$this->user}",
-            "--group=jobe",
-            "--cputime=$cputime",      // Seconds of execution time allowed
-            "--time=$killtime",        // Wall clock kill time
-            "--filesize=$filesize",    // Max file sizes
-            "--nproc=$numProcs",       // Max num processes/threads for this *user*
-            "--no-core",
-            "--streamsize=$streamsize");   // Max stdout/stderr sizes
-
-        // Prepend CPU pinning command if enabled
-        $sandboxCommandBits = array_merge($sandboxCpuPinning, $sandboxCommandBits);
+                "sudo " . dirname(__FILE__)  . "/../../runguard/runguard",
+                "--user={$this->user}",
+                "--group=jobe",
+                "--cputime=$cputime",      // Seconds of execution time allowed
+                "--time=$killtime",        // Wall clock kill time
+                "--filesize=$filesize",    // Max file sizes
+                "--nproc=$numProcs",       // Max num processes/threads for this *user*
+                "--no-core",
+                "--streamsize=$streamsize");   // Max stdout/stderr sizes
 
         if ($memsize != 0) {  // Special case: Matlab won't run with a memsize set. TODO: WHY NOT!
             $sandboxCommandBits[] = "--memsize=$memsize";
         }
         $sandboxCmd = implode(' ', $sandboxCommandBits) .
-        ' sh -c ' . escapeshellarg($wrappedCmd) . ' >prog.out 2>prog.err';
+                ' sh -c ' . escapeshellarg($wrappedCmd) . ' >prog.out 2>prog.err';
 
         // CD into the work directory and run the job
         $workdir = $this->workdir;
