@@ -34,16 +34,19 @@ class GO_Task extends Task {
     // GOCACHE is not defined and neither $XDG_CACHE_HOME nor $HOME are defined
     // env -i GOCACHE=// HOME=// 
     public function compile() {
+        
+        $params = array(
+            'memorylimit'   => 400,     // MB
+            'cputime'       => 50,       // secs
+            'numprocs'      => 100,
+        );
+
         $src = basename($this->sourceFileName);
         $this->executableFileName = $execFileName = "$src.exe";
-        # $compileargs = $this->getParam('compileargs');
-        # $linkargs = $this->getParam('linkargs');
-        # in accordo con le modifiche al file classes\localsandbox.php
-        # $cmd = "go mod init esercizio.com/es\nenv -i GOCACHE=/go_temp  go build -o $execFileName" . " src.go ";
-
+        $cmd = "env -i GOCACHE=/go_temp  go build -o $execFileName";
+        
         $this->run_in_sandbox("mv ".$src." ./sources.go");
         $this->run_in_sandbox("go mod init esercizio.com/es");
-        $cmd = "env -i GOCACHE=/go_temp  go build -o $execFileName";
         list($output, $this->cmpinfo) = $this->run_in_sandbox($cmd);
 
         //$test = fopen('/go_temp/test.out', 'w'); fwrite($test, $cmd."\n\n".$this->cmpinfo."\n\n".$output); fclose($test);
